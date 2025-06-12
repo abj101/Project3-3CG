@@ -14,6 +14,12 @@ function Game:new()
 end
 
 function Game:load()
+    love.window.setTitle("Card Clash Game")
+    screenWidth = 1280
+    screenHeight = 720
+    love.window.setMode(screenWidth, screenHeight)
+--    love.graphics.setBackgroundColor(0, 0.7, 0.2, 1)
+    
     -- Define prototypes (extend these as needed)
     Card.define("C1", 1, 2, "Weakling")
     Card.define("C2", 2, 4, "Bruiser")

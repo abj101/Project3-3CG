@@ -8,13 +8,13 @@ end
 function MenuState:update(dt) end
 
 function MenuState:draw()
+    love.graphics.printf("CARD CLASH GAME", 0, love.graphics.getHeight()/4, love.graphics.getWidth(), "center")
     love.graphics.printf("Press ENTER to start", 0, love.graphics.getHeight()/2, love.graphics.getWidth(), "center")
 end
 
 function MenuState:keypressed(key)
     if key == "return" then
-      print("hello")
-        self.game:changeState("PlayState")
+      self.game:changeState("PlayState")
     end
 end
 

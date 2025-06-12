@@ -14,7 +14,7 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if game and game:keypressed() then
-      game:keypressed(key)
+    if game and game.keypressed then 
+        game:keypressed(key)          
     end
 end
