@@ -11,6 +11,13 @@ end
 function PlayState:enter()
     -- setup players for this turn
     local g = self.game
+    
+    -- Reset players if this is turn 1 (first time entering PlayState)
+    if g.turn == 1 then
+        g.player1:reset()
+        g.player2:reset()
+    end
+    
     g.player1.mana = g.turn
     g.player2.mana = g.turn
     g.player1:draw()
@@ -65,6 +72,43 @@ function PlayState:enter()
     end
 
     self.grabber = Grabber:new(self)
+    
+    -- Initialize hand card positions
+    self:initializeHandPositions()
+end
+
+function PlayState:initializeHandPositions()
+    local screenW = love.graphics.getWidth()
+    local screenH = love.graphics.getHeight()
+    local handHeight = 140
+    local handBoxW = screenW - 20
+    local handBoxH = handHeight - 10
+    local handCardW = math.min(80, (screenW - 120) / 8)
+    local handCardH = handCardW * 1.3
+    
+    local player = self.game.player1
+    local cardAreaH = handBoxH - 25
+    local cardY = screenH - handBoxH - 5 + (cardAreaH - handCardH) / 2
+    
+    local maxHandCards = math.floor((handBoxW - 40) / (handCardW + 5))
+    local actualCards = math.min(#player.hand, maxHandCards)
+    
+    if actualCards > 0 then
+        local totalHandW = actualCards * handCardW + (actualCards - 1) * 5
+        local handStartX = 10 + (handBoxW - totalHandW) / 2
+        
+        -- Set initial positions for all hand cards
+        for i, card in ipairs(player.hand) do
+            if i <= maxHandCards then
+                card.originX = handStartX + (i - 1) * (handCardW + 5)
+                card.originY = cardY
+                card.x = card.originX
+                card.y = card.originY
+                card.w = handCardW
+                card.h = handCardH
+            end
+        end
+    end
 end
 
 function PlayState:update(dt)
@@ -324,10 +368,13 @@ function PlayState:draw()
         -- Draw hand cards
         for i, card in ipairs(player.hand) do
             if i <= maxHandCards then
-                card.originX = handStartX + (i - 1) * (handCardW + 5)
-                card.originY = cardY
-                card.x, card.y = card.originX, card.originY
-                card.w, card.h = handCardW, handCardH
+                -- Only set positions if card is not being dragged
+                if not (self.grabber.target == card) then
+                    card.originX = handStartX + (i - 1) * (handCardW + 5)
+                    card.originY = cardY
+                    card.x, card.y = card.originX, card.originY
+                    card.w, card.h = handCardW, handCardH
+                end
                 
                 -- Dim unplayable cards
                 if card.cost > player.mana then

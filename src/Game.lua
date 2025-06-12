@@ -53,6 +53,12 @@ function Game:keypressed(key)
     end
 end
 
+function Game:mousepressed(x, y, button)
+    if self.states.current.mousepressed then
+        self.states.current:mousepressed(x, y, button)
+    end
+end
+
 function Game:changeState(name)
     self.states:change(name)
 end

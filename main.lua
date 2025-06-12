@@ -18,3 +18,9 @@ function love.keypressed(key)
         game:keypressed(key)          
     end
 end
+
+function love.mousepressed(x, y, button)
+    if game and game.mousepressed then
+        game:mousepressed(x, y, button)
+    end
+end
