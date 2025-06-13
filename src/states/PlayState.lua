@@ -320,7 +320,7 @@ function PlayState:drawPlayer2Info(player, x, y, w, h)
 end
 
 function PlayState:drawLocation(locationId, x, y, w, h)
-    local locationNames = {"The Peak", "Sanctum", "Wakanda"}
+    local locationNames = {"Tartarus", "Olympus", "Gaia"}
     
     -- Location background
     love.graphics.setColor(0.08, 0.08, 0.18)
