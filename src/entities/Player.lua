@@ -18,9 +18,9 @@ function Player:reset()
     -- Build deck with mythological cards
     self.deck = {}
     local cardIds = {
-        "WoodenCow", "Pegasus", "Minotaur", "Titan", "Zeus", "Ares", 
-        "Medusa", "Cyclops", "Poseidon", "Artemis", "Hera", "Demeter", 
-        "Hades", "Hercules"
+        "WoodenCow", "WoodenCow", "Pegasus", "Minotaur", "Minotaur", "Titan", "Zeus", "Ares", 
+        "Medusa", "Cyclops", "Cyclops", "Poseidon", "Artemis", "Artemis", "Hera", "Demeter", 
+        "Hades", "Hercules", "Medusa", "Pegasus"
     }
     
     -- Create multiple copies of each card for variety

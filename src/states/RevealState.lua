@@ -68,7 +68,7 @@ function RevealState:enter()
     end
     
     -- Check win condition
-    local t1, t2 = p1.points >= g.winningScore, p2.points >= g.winningScore
+    local t1, t2 = p1.points >= 25, p2.points >= 25
     if t1 or t2 then
         self.winner = (p1.points > p2.points) and p1 or p2
         g:changeState("EndState") 

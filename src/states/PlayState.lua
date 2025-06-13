@@ -30,7 +30,6 @@ function PlayState:enter()
     g.player1:draw()
     g.player2:draw()
 
-    -- Get screen dimensions
     local screenW = love.graphics.getWidth()
     local screenH = love.graphics.getHeight()
     
@@ -94,10 +93,10 @@ function PlayState:enter()
             end
 
             self.slots[pid][loc] = { 
-                cards = existing_cards, -- Use cards from persistent game state
-                x = x + 8, -- Inset from location border
+                cards = existing_cards, 
+                x = x + 8,
                 y = y,
-                w = locationW - 16, -- Account for inset
+                w = locationW - 16, 
                 h = slotH,
                 locationId = loc,
                 playerId = pid
@@ -165,7 +164,7 @@ function PlayState:drawCard(card, x, y, w, h, isInHand)
     love.graphics.setColor(0.15, 0.15, 0.25)
     love.graphics.rectangle("fill", x, y, cardW, cardH, 4)
     
-    -- Card border with rarity color
+    -- Card border with rarity color, probably won't have time to actually set
     local borderColor = {0.4, 0.6, 1} -- Blue for common
     if card.id == "C2" then borderColor = {0.6, 0.4, 1} -- Purple for uncommon
     elseif card.id == "C3" then borderColor = {1, 0.6, 0.2} end -- Orange for rare
@@ -174,11 +173,11 @@ function PlayState:drawCard(card, x, y, w, h, isInHand)
     love.graphics.setLineWidth(1)
     love.graphics.rectangle("line", x, y, cardW, cardH, 4)
     
-    -- Card art area (proportional)
+    -- Card art area
     love.graphics.setColor(0.2, 0.2, 0.3)
     love.graphics.rectangle("fill", x + 2, y + 2, cardW - 4, cardH * 0.6, 2)
     
-    -- Cost crystal (top left) - scaled
+    -- Cost crystal 
     local crystalSize = math.min(10, cardW * 0.15)
     love.graphics.setColor(0.2, 0.4, 0.8)
     love.graphics.circle("fill", x + crystalSize + 3, y + crystalSize + 3, crystalSize)
@@ -187,19 +186,19 @@ function PlayState:drawCard(card, x, y, w, h, isInHand)
     love.graphics.setFont(love.graphics.newFont(fontSize))
     love.graphics.printf(tostring(card.cost), x + 3, y + crystalSize - 2, crystalSize * 2, "center")
     
-    -- Power crystal (bottom right) - scaled
+    -- Power crystal 
     love.graphics.setColor(0.8, 0.2, 0.2)
     love.graphics.circle("fill", x + cardW - crystalSize - 3, y + cardH - crystalSize - 3, crystalSize)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(tostring(card.power), x + cardW - crystalSize * 2, y + cardH - crystalSize - 2, crystalSize * 2, "center")
+    love.graphics.printf(tostring(card.power), x + cardW - crystalSize * 2 - 2, y + cardH - crystalSize - 7, crystalSize * 2, "center")
     
-    -- Card name - scaled font
+    -- Card name 
     love.graphics.setColor(1, 1, 1)
     local nameFont = math.max(8, cardW * 0.12)
     love.graphics.setFont(love.graphics.newFont(nameFont))
-    love.graphics.printf(card.text, x + 2, y + cardH * 0.68, cardW - 4, "center")
+    love.graphics.printf(card.text, x + 2, y + cardH * 0.2, cardW - 4, "center")
     
-    -- Hover effect for hand cards
+    -- Hover 
     if isInHand then
         local mx, my = love.mouse.getPosition()
         if mx >= x and mx <= x + cardW and my >= y and my <= y + cardH then
@@ -219,7 +218,7 @@ function PlayState:drawHandBox(player, x, y, w, h)
     love.graphics.setLineWidth(2)
     love.graphics.rectangle("line", x, y, w, h, 8)
     
-    -- Player info section (at bottom of hand box)
+    -- Player info section
     local infoH = 25
     local infoY = y + h - infoH
     
@@ -234,7 +233,7 @@ function PlayState:drawHandBox(player, x, y, w, h)
     local infoText = player.name .. " | Mana: " .. player.mana .. " | Points: " .. player.points
     love.graphics.printf(infoText, x + 10, infoY + 8, w - 20, "center")
     
-    return y -- Return card area start Y
+    return y
 end
 
 function PlayState:drawSubmitButton()
@@ -397,7 +396,7 @@ function PlayState:draw()
     
     -- Draw locations
     for loc = 1, 3 do
-        local slot = self.slots[2][loc] -- Use player 2 slot for top reference
+        local slot = self.slots[2][loc]
         local locationY = slot.y - 40
         local locationH = (self.slots[1][loc].y + self.slots[1][loc].h) - locationY + 15
         self:drawLocation(loc, slot.x - 8, locationY, slot.w + 16, locationH)
