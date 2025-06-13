@@ -419,9 +419,9 @@ function PlayState:mousepressed(x, y, button)
 end
 
 function PlayState:submit()
-    -- store staged cards - fix the reference
-    self.game.p1Slots = self.slots
-    self.game.p2Slots = self.slots  -- Both players use the same slot structure
+    -- store staged cards
+    self.game.p1Slots = self.slots[1]
+    self.game.p2Slots = self.slots[2]
     self.game:changeState("RevealState")
 end
 
