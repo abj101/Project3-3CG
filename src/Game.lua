@@ -14,16 +14,26 @@ function Game:new()
 end
 
 function Game:load()
-    love.window.setTitle("Card Clash Game")
+    love.window.setTitle("Mythological Card Clash")
     screenWidth = 1280
     screenHeight = 720
     love.window.setMode(screenWidth, screenHeight)
---    love.graphics.setBackgroundColor(0, 0.7, 0.2, 1)
     
-    -- Define prototypes (extend these as needed)
-    Card.define("C1", 1, 2, "Weakling")
-    Card.define("C2", 2, 4, "Bruiser")
-    Card.define("C3", 3, 6, "Champion")
+    -- Define mythological card prototypes
+    Card.define("WoodenCow", 1, 1, "Wooden Cow", "A simple wooden decoy.")
+    Card.define("Pegasus", 3, 5, "Pegasus", "The legendary winged horse.")
+    Card.define("Minotaur", 5, 9, "Minotaur", "Half-man, half-bull beast.")
+    Card.define("Titan", 6, 12, "Titan", "Ancient primordial giant.")
+    Card.define("Zeus", 5, 8, "Zeus", "When Revealed: Lower the power of each card in your opponent's hand by 1.", "zeus")
+    Card.define("Ares", 6, 7, "Ares", "When Revealed: Gain +2 power for each enemy card here.", "ares")
+    Card.define("Medusa", 3, 4, "Medusa", "When ANY other card is played here, lower that card's power by 1.", "medusa")
+    Card.define("Cyclops", 3, 5, "Cyclops", "When Revealed: Discard your other cards here, gain +2 power for each discarded.", "cyclops")
+    Card.define("Poseidon", 4, 7, "Poseidon", "When Revealed: Move away an enemy card here with the lowest power.", "poseidon")
+    Card.define("Artemis", 1, 0, "Artemis", "When Revealed: Gain +5 power if there is exactly one enemy card here.", "artemis")
+    Card.define("Hera", 2, 3, "Hera", "When Revealed: Give cards in your hand +1 power.", "hera")
+    Card.define("Demeter", 1, 2, "Demeter", "When Revealed: Both players draw a card.", "demeter")
+    Card.define("Hades", 3, 3, "Hades", "When Revealed: Gain +2 power for each card in your discard pile.", "hades")
+    Card.define("Hercules", 5, 10, "Hercules", "When Revealed: Doubles its power if its the strongest card here.", "hercules")
 
     -- Players
     self.player1 = Player:new("Player 1")

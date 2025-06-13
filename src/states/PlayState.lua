@@ -12,10 +12,17 @@ function PlayState:enter()
     -- setup players for this turn
     local g = self.game
     
-    -- Reset players if this is turn 1 (first time entering PlayState)
+    -- Reset players and initialize slots if this is turn 1
     if g.turn == 1 then
         g.player1:reset()
         g.player2:reset()
+        -- Initialize the game's persistent slot data
+        g.p1Slots = {}
+        g.p2Slots = {}
+        for i = 1, 3 do
+            g.p1Slots[i] = { cards = {} }
+            g.p2Slots[i] = { cards = {} }
+        end
     end
     
     g.player1.mana = g.turn
@@ -39,6 +46,25 @@ function PlayState:enter()
         h = 60
     }
     
+    -- Add Deck and Discard rectangles below submit button
+    local cardW = 60
+    local cardH = 80
+    local spacing = 10
+    
+    self.deckRect = {
+        x = 20,
+        y = self.submitButton.y + self.submitButton.h + spacing,
+        w = cardW,
+        h = cardH
+    }
+    
+    self.discardRect = {
+        x = 20,
+        y = self.deckRect.y + self.deckRect.h + spacing,
+        w = cardW,
+        h = cardH
+    }
+    
     -- Calculate larger location dimensions to use more space
     local locationW = math.min(260, (screenW - 60) / 3.2)
     local locationH = math.min(gameAreaH - 20, 320)
@@ -49,7 +75,7 @@ function PlayState:enter()
     local startX = (screenW - totalWidth) / 2
     local centerY = player2InfoHeight + 20 + (gameAreaH / 2)
     
-    -- create slots: 2 players x 3 locations (larger slots for 4 cards)
+    -- create slots: 2 players x 3 locations
     self.slots = {}
     for pid = 1, 2 do
         self.slots[pid] = {}
@@ -59,8 +85,16 @@ function PlayState:enter()
             -- Player 2 (top) gets negative offset, Player 1 (bottom) gets positive offset
             local y = centerY - slotH/2 + (pid == 2 and -slotH - 8 or slotH + 8)
             
+            -- FIX: Load cards that were already played in previous turns
+            local existing_cards = {}
+            if pid == 1 and g.p1Slots and g.p1Slots[loc] then
+                existing_cards = g.p1Slots[loc].cards
+            elseif pid == 2 and g.p2Slots and g.p2Slots[loc] then
+                existing_cards = g.p2Slots[loc].cards
+            end
+
             self.slots[pid][loc] = { 
-                cards = {}, 
+                cards = existing_cards, -- Use cards from persistent game state
                 x = x + 8, -- Inset from location border
                 y = y,
                 w = locationW - 16, -- Account for inset
@@ -232,6 +266,42 @@ function PlayState:drawSubmitButton()
     love.graphics.printf("END\nTURN", btn.x, btn.y + btn.h/2 - 14, btn.w, "center")
 end
 
+function PlayState:drawDeckAndDiscard()
+    -- Draw Deck rectangle
+    local deck = self.deckRect
+    love.graphics.setColor(0, 0, 0, 0.3)
+    love.graphics.rectangle("fill", deck.x + 2, deck.y + 2, deck.w, deck.h, 4)
+    
+    love.graphics.setColor(0.1, 0.2, 0.1)
+    love.graphics.rectangle("fill", deck.x, deck.y, deck.w, deck.h, 4)
+    
+    love.graphics.setColor(0.3, 0.5, 0.3)
+    love.graphics.setLineWidth(2)
+    love.graphics.rectangle("line", deck.x, deck.y, deck.w, deck.h, 4)
+    
+    love.graphics.setColor(1, 1, 1)
+    local deckFont = love.graphics.newFont(12)
+    love.graphics.setFont(deckFont)
+    love.graphics.printf("DECK", deck.x, deck.y + deck.h/2 - 6, deck.w, "center")
+    
+    -- Draw Discard rectangle
+    local discard = self.discardRect
+    love.graphics.setColor(0, 0, 0, 0.3)
+    love.graphics.rectangle("fill", discard.x + 2, discard.y + 2, discard.w, discard.h, 4)
+    
+    love.graphics.setColor(0.2, 0.1, 0.1)
+    love.graphics.rectangle("fill", discard.x, discard.y, discard.w, discard.h, 4)
+    
+    love.graphics.setColor(0.5, 0.3, 0.3)
+    love.graphics.setLineWidth(2)
+    love.graphics.rectangle("line", discard.x, discard.y, discard.w, discard.h, 4)
+    
+    love.graphics.setColor(1, 1, 1)
+    local discardFont = love.graphics.newFont(11)
+    love.graphics.setFont(discardFont)
+    love.graphics.printf("DISCARD", discard.x, discard.y + discard.h/2 - 6, discard.w, "center")
+end
+
 function PlayState:drawPlayer2Info(player, x, y, w, h)
     -- Simple background
     love.graphics.setColor(0.08, 0.08, 0.15, 0.8)
@@ -323,6 +393,7 @@ function PlayState:draw()
     local p1HandY = self:drawHandBox(self.game.player1, 10, screenH - handBoxH - 5, handBoxW, handBoxH)
     
     self:drawSubmitButton()
+    self:drawDeckAndDiscard()
     
     -- Draw locations
     for loc = 1, 3 do
@@ -419,7 +490,37 @@ function PlayState:mousepressed(x, y, button)
 end
 
 function PlayState:submit()
-    -- store staged cards
+    -- AI for Player 2 to play cards
+    local p2 = self.game.player2
+    local p2_slots = self.slots[2]
+    
+    -- Iterate backwards through P2's hand to safely remove cards when played
+    for i = #p2.hand, 1, -1 do
+        local card = p2.hand[i]
+        if card.cost <= p2.mana then
+            
+            -- Find all locations where the card can be played
+            local available_locations = {}
+            for locId = 1, 3 do
+                if #p2_slots[locId].cards < 4 then
+                    table.insert(available_locations, locId)
+                end
+            end
+            
+            -- If there is at least one available location, pick one randomly
+            if #available_locations > 0 then
+                local random_index = math.random(#available_locations)
+                local chosen_loc_id = available_locations[random_index]
+                
+                -- Play the card to the randomly chosen slot
+                table.insert(p2_slots[chosen_loc_id].cards, card)
+                p2.mana = p2.mana - card.cost
+                table.remove(p2.hand, i) -- Remove the card from P2's hand
+            end
+        end
+    end
+
+    -- store staged cards (now including P2's randomly placed cards)
     self.game.p1Slots = self.slots[1]
     self.game.p2Slots = self.slots[2]
     self.game:changeState("RevealState")
