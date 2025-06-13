@@ -16,7 +16,8 @@ function Card.define(id, cost, power, name, text, ability)
         w = 60, 
         h = 90,
         powerModifier = 0,
-        revealed = false
+        revealed = false,
+        faceDown = false  -- New property for flip state
     }, Card)
     prototypes[id] = proto
     return proto
@@ -36,6 +37,7 @@ function Card:clone()
     copy.power = self.basePower
     copy.powerModifier = 0
     copy.revealed = false
+    copy.faceDown = false  -- Initialize flip state
     return copy
 end
 
@@ -56,6 +58,16 @@ function Card:reset()
         self.x = self.originX
         self.y = self.originY
     end
+end
+
+-- Flip card face down (when placed in location)
+function Card:flipDown()
+    self.faceDown = true
+end
+
+-- Flip card face up (when revealed)
+function Card:flipUp()
+    self.faceDown = false
 end
 
 -- Apply power modifier
